@@ -19,6 +19,9 @@ model User {
   updatedAt    DateTime  @updatedAt @map("updated_at")
   assets       Asset[]
   versions     AssetVersion[]
+  projects     Project[]
+  deliverables Deliverable[]
+  learningRes  LearningResource[]
 
   @@map("users")
 }
@@ -58,6 +61,7 @@ model Asset {
   createdAt       DateTime       @default(now()) @map("created_at")
   updatedAt       DateTime       @updatedAt @map("updated_at")
   versions        AssetVersion[]
+  materialLinks   ProjectMaterialLink[]
 
   @@map("assets")
 }
@@ -76,4 +80,91 @@ model AssetVersion {
   createdAt    DateTime @default(now()) @map("created_at")
 
   @@map("asset_versions")
+}
+
+model Project {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String    @default("")
+  client      String    @default("")
+  status      String    @default("active") // active, completed, archived
+  createdBy   Int       @map("created_by")
+  creator     User      @relation(fields: [createdBy], references: [id])
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deliverables  Deliverable[]
+  materialLinks ProjectMaterialLink[]
+  reqFiles      ProjectRequirementFile[]
+
+  @@map("projects")
+}
+
+model ProjectMaterialLink {
+  id        Int      @id @default(autoincrement())
+  projectId Int      @map("project_id")
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  assetId   Int      @map("asset_id")
+  asset     Asset    @relation(fields: [assetId], references: [id])
+  note      String   @default("")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("project_material_links")
+}
+
+model ProjectRequirementFile {
+  id        Int      @id @default(autoincrement())
+  projectId Int      @map("project_id")
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  filePath  String   @map("file_path")
+  fileType  String   @map("file_type")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("project_requirement_files")
+}
+
+model Deliverable {
+  id          Int       @id @default(autoincrement())
+  projectId   Int       @map("project_id")
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name        String
+  description String    @default("")
+  status      String    @default("draft") // draft, review, final
+  version     Int       @default(1)
+  uploaderId  Int       @map("uploader_id")
+  uploader    User      @relation(fields: [uploaderId], references: [id])
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  files       DeliverableFile[]
+
+  @@map("deliverables")
+}
+
+model DeliverableFile {
+  id            Int         @id @default(autoincrement())
+  deliverableId Int         @map("deliverable_id")
+  deliverable   Deliverable @relation(fields: [deliverableId], references: [id], onDelete: Cascade)
+  filePath      String      @map("file_path")
+  fileSize      Int         @map("file_size")
+  fileType      String      @map("file_type")
+  originalName  String      @map("original_name")
+  createdAt     DateTime    @default(now()) @map("created_at")
+
+  @@map("deliverable_files")
+}
+
+model LearningResource {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String   @default("")
+  type        String   @default("image") // image, document, pdf, link, cloud_link
+  content     String   @default("")
+  fileSize    Int?     @map("file_size")
+  category    String   @default("")
+  tags        String   @default("[]")
+  uploaderId  Int      @map("uploader_id")
+  uploader    User     @relation(fields: [uploaderId], references: [id])
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("learning_resources")
 }

@@ -9,6 +9,10 @@ import AssetDetail from './pages/AssetDetail';
 import Upload from './pages/Upload';
 import Categories from './pages/Categories';
 import Users from './pages/Users';
+import Projects from './pages/Projects';
+import ProjectDetail from './pages/ProjectDetail';
+import Learning from './pages/Learning';
+import LearningUpload from './pages/LearningUpload';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -33,6 +37,10 @@ function AppRoutes() {
         <Route path="assets" element={<Assets />} />
         <Route path="assets/:id" element={<AssetDetail />} />
         <Route path="upload" element={<Upload />} />
+        <Route path="projects" element={<Projects />} />
+        <Route path="projects/:id" element={<ProjectDetail />} />
+        <Route path="learning" element={<Learning />} />
+        <Route path="learning/upload" element={<LearningUpload />} />
         <Route path="categories" element={<AdminRoute><Categories /></AdminRoute>} />
         <Route path="users" element={<AdminRoute><Users /></AdminRoute>} />
       </Route>

@@ -7,6 +7,8 @@ import { fileURLToPath } from 'url';
 import authRoutes from './src/routes/auth.js';
 import categoryRoutes from './src/routes/categories.js';
 import assetRoutes from './src/routes/assets.js';
+import projectRoutes from './src/routes/projects.js';
+import learningRoutes from './src/routes/learning.js';
 import { errorHandler } from './src/middleware/error.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -15,7 +17,7 @@ const PORT = process.env.PORT || 3000;
 
 // Ensure upload directories exist
 const uploadsPath = path.resolve(__dirname, '..', process.env.UPLOAD_DIR || '../uploads');
-['', 'originals', 'thumbnails', 'versions'].forEach(dir => {
+['', 'originals', 'thumbnails', 'versions', 'requirements', 'deliverables', 'learning'].forEach(dir => {
   const fullPath = path.join(uploadsPath, dir);
   if (!fs.existsSync(fullPath)) fs.mkdirSync(fullPath, { recursive: true });
 });
@@ -30,6 +32,8 @@ app.use('/uploads', express.static(uploadsPath));
 app.use('/api/auth', authRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/assets', assetRoutes);
+app.use('/api/projects', projectRoutes);
+app.use('/api/learning', learningRoutes);
 
 // Serve frontend in production
 const clientDist = path.resolve(__dirname, '..', 'client', 'dist');

@@ -48,4 +48,35 @@ export const uploadVersion = (assetId, formData) => api.post(`/assets/${assetId}
 export const getVersions = (assetId) => api.get(`/assets/${assetId}/versions`);
 export const downloadVersion = (assetId, versionId) => api.get(`/assets/${assetId}/versions/${versionId}/download`);
 
+// Projects
+export const getProjects = (params) => api.get('/projects', { params });
+export const createProject = (data) => api.post('/projects', data);
+export const getProject = (id) => api.get(`/projects/${id}`);
+export const updateProject = (id, data) => api.put(`/projects/${id}`, data);
+export const deleteProject = (id) => api.delete(`/projects/${id}`);
+
+// Project material links
+export const linkMaterial = (projectId, assetId, note) => api.post(`/projects/${projectId}/materials`, { assetId, note });
+export const unlinkMaterial = (projectId, linkId) => api.delete(`/projects/${projectId}/materials/${linkId}`);
+
+// Project requirement files
+export const uploadReqFile = (projectId, formData) => api.post(`/projects/${projectId}/req-files`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+export const deleteReqFile = (projectId, fileId) => api.delete(`/projects/${projectId}/req-files/${fileId}`);
+
+// Deliverables
+export const getDeliverables = (projectId) => api.get(`/projects/${projectId}/deliverables`);
+export const createDeliverable = (projectId, formData) => api.post(`/projects/${projectId}/deliverables`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+export const updateDeliverable = (id, data) => api.put(`/projects/deliverables/${id}`, data);
+export const deleteDeliverable = (id) => api.delete(`/projects/deliverables/${id}`);
+export const nextDeliverableVersion = (id, formData) => api.post(`/projects/deliverables/${id}/next-version`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+export const downloadDeliverableFile = (deliverableId, fileId) => api.get(`/projects/deliverables/${deliverableId}/files/${fileId}/download`);
+
+// Learning resources
+export const getLearningResources = (params) => api.get('/learning', { params });
+export const uploadLearningResource = (formData) => api.post('/learning', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+export const createLearningLink = (data) => api.post('/learning/link', data);
+export const updateLearningResource = (id, data) => api.put(`/learning/${id}`, data);
+export const deleteLearningResource = (id) => api.delete(`/learning/${id}`);
+export const downloadLearningFile = (id) => api.get(`/learning/${id}/download`);
+
 export default api;

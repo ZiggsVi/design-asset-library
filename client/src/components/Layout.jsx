@@ -2,7 +2,8 @@ import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { Layout as AntLayout, Menu, Button, Avatar, Dropdown, Typography, theme } from 'antd';
 import {
   InboxOutlined, UploadOutlined, AppstoreOutlined,
-  TeamOutlined, LogoutOutlined, UserOutlined, FolderOutlined
+  TeamOutlined, LogoutOutlined, UserOutlined, FolderOutlined,
+  ProjectOutlined, BookOutlined, FileOutlined
 } from '@ant-design/icons';
 import { useAuth } from '../context/AuthContext';
 import CategoryTree from './CategoryTree';
@@ -17,12 +18,22 @@ export default function Layout() {
   const { token } = theme.useToken();
 
   const menuItems = [
-    { key: '/assets', icon: <InboxOutlined />, label: '素材库' },
-    { key: '/upload', icon: <UploadOutlined />, label: '上传素材' },
-    ...(user?.role === 'admin' ? [
-      { key: '/categories', icon: <AppstoreOutlined />, label: '分类管理' },
-      { key: '/users', icon: <TeamOutlined />, label: '用户管理' },
-    ] : []),
+    { type: 'group', label: '素材库', children: [
+      { key: '/assets', icon: <InboxOutlined />, label: '浏览素材' },
+      { key: '/upload', icon: <UploadOutlined />, label: '上传素材' },
+    ]},
+    { type: 'group', label: '项目', children: [
+      { key: '/projects', icon: <ProjectOutlined />, label: '项目列表' },
+    ]},
+    { type: 'group', label: '学习资料', children: [
+      { key: '/learning', icon: <BookOutlined />, label: '资料库' },
+    ]},
+    ...(user?.role === 'admin' ? [{
+      type: 'group', label: '系统管理', children: [
+        { key: '/categories', icon: <AppstoreOutlined />, label: '分类管理' },
+        { key: '/users', icon: <TeamOutlined />, label: '用户管理' },
+      ]
+    }] : []),
   ];
 
   const userMenu = {
