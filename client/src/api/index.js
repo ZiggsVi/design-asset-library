@@ -30,7 +30,7 @@ export const updateUser = (id, data) => api.put(`/auth/users/${id}`, data);
 export const deleteUser = (id) => api.delete(`/auth/users/${id}`);
 
 // Categories
-export const getCategories = () => api.get('/categories');
+export const getCategories = (params) => api.get('/categories', { params });
 export const createCategory = (data) => api.post('/categories', data);
 export const updateCategory = (id, data) => api.put(`/categories/${id}`, data);
 export const deleteCategory = (id) => api.delete(`/categories/${id}`);
@@ -42,6 +42,8 @@ export const createAsset = (formData) => api.post('/assets', formData, { headers
 export const updateAsset = (id, data) => api.put(`/assets/${id}`, data);
 export const deleteAsset = (id) => api.delete(`/assets/${id}`);
 export const downloadAsset = (id) => api.get(`/assets/${id}/download`);
+export const batchUploadAssets = (formData) => api.post('/assets/batch', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+export const getAssetBatch = (batchId) => api.get(`/assets/batch/${batchId}`);
 
 // Versions
 export const uploadVersion = (assetId, formData) => api.post(`/assets/${assetId}/versions`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });

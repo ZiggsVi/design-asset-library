@@ -86,6 +86,7 @@ export default function Users() {
         open={modalOpen}
         onCancel={() => setModalOpen(false)}
         onOk={handleSubmit}
+        width={500}
       >
         <Form form={form} layout="vertical">
           {!editingUser && (
@@ -97,6 +98,11 @@ export default function Users() {
                 <Input.Password />
               </Form.Item>
             </>
+          )}
+          {editingUser && (
+            <Form.Item name="password" label="修改密码（留空则不修改）">
+              <Input.Password placeholder="输入新密码" />
+            </Form.Item>
           )}
           <Form.Item name="displayName" label="显示名称" rules={[{ required: true, message: '请输入显示名称' }]}>
             <Input />

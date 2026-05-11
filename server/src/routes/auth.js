@@ -62,10 +62,15 @@ router.get('/users', authenticate, requireRole('admin'), async (req, res, next) 
 // Update user role (admin only)
 router.put('/users/:id', authenticate, requireRole('admin'), async (req, res, next) => {
   try {
-    const { role, displayName, email } = req.body;
+    const { role, displayName, email, password } = req.body;
+    const data = {};
+    if (role !== undefined) data.role = role;
+    if (displayName !== undefined) data.displayName = displayName;
+    if (email !== undefined) data.email = email;
+    if (password) data.passwordHash = await bcrypt.hash(password, 10);
     const user = await prisma.user.update({
       where: { id: parseInt(req.params.id) },
-      data: { role, displayName, email },
+      data,
       select: { id: true, username: true, displayName: true, email: true, role: true }
     });
     res.json(user);

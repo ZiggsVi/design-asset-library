@@ -32,6 +32,7 @@ model Category {
   parentId  Int?       @map("parent_id")
   parent    Category?  @relation("CategoryTree", fields: [parentId], references: [id])
   children  Category[] @relation("CategoryTree")
+  type      String     @default("material") // material, reference
   sortOrder Int        @default(0) @map("sort_order")
   createdAt DateTime   @default(now()) @map("created_at")
   updatedAt DateTime   @updatedAt @map("updated_at")
@@ -54,6 +55,8 @@ model Asset {
   width           Int?
   height          Int?
   tags            String         @default("[]") // JSON array
+  colors          String         @default("[]") // JSON array of hex colors
+  batchId         String?        @map("batch_id") // group batch uploads
   uploaderId      Int            @map("uploader_id")
   uploader        User           @relation(fields: [uploaderId], references: [id])
   status          String         @default("reference") // reference, final

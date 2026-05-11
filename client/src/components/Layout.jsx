@@ -3,7 +3,8 @@ import { Layout as AntLayout, Menu, Button, Avatar, Dropdown, Typography, theme 
 import {
   InboxOutlined, UploadOutlined, AppstoreOutlined,
   TeamOutlined, LogoutOutlined, UserOutlined, FolderOutlined,
-  ProjectOutlined, BookOutlined, FileOutlined
+  ProjectOutlined, BookOutlined, FileOutlined, PictureOutlined,
+  PictureFilled
 } from '@ant-design/icons';
 import { useAuth } from '../context/AuthContext';
 import CategoryTree from './CategoryTree';
@@ -17,10 +18,22 @@ export default function Layout() {
   const location = useLocation();
   const { token } = theme.useToken();
 
+  // Map sub-paths to parent menu keys for highlighting
+  const getSelectedKey = (pathname) => {
+    if (pathname.startsWith('/references')) return '/references';
+    if (pathname.startsWith('/learning/upload')) return '/learning';
+    if (pathname.startsWith('/projects/')) return '/projects';
+    return pathname;
+  };
+
   const menuItems = [
     { type: 'group', label: '素材库', children: [
       { key: '/assets', icon: <InboxOutlined />, label: '浏览素材' },
       { key: '/upload', icon: <UploadOutlined />, label: '上传素材' },
+    ]},
+    { type: 'group', label: '参考图', children: [
+      { key: '/references', icon: <PictureOutlined />, label: '浏览参考图' },
+      { key: '/references/upload', icon: <UploadOutlined />, label: '上传参考图' },
     ]},
     { type: 'group', label: '项目', children: [
       { key: '/projects', icon: <ProjectOutlined />, label: '项目列表' },
@@ -58,7 +71,7 @@ export default function Layout() {
         </div>
         <Menu
           mode="inline"
-          selectedKeys={[location.pathname]}
+          selectedKeys={[getSelectedKey(location.pathname)]}
           items={menuItems}
           onClick={({ key }) => navigate(key)}
           style={{ borderRight: 0, marginTop: 8 }}

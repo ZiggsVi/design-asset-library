@@ -193,6 +193,112 @@ router.get('/:id/download', async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
+// === Color Extraction Helper ===
+
+async function extractColors(imagePath) {
+  try {
+    const { data, info } = await sharp(imagePath)
+      .resize(80, 80, { fit: 'inside' })
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+    const colorMap = {};
+    const step = 48;
+    for (let i = 0; i < data.length; i += info.channels) {
+      const r = Math.round(data[i] / step) * step;
+      const g = Math.round(data[i + 1] / step) * step;
+      const b = Math.round(data[i + 2] / step) * step;
+      const hex = '#' + [r, g, b].map(v => Math.min(v, 255).toString(16).padStart(2, '0')).join('');
+      colorMap[hex] = (colorMap[hex] || 0) + 1;
+    }
+    return Object.entries(colorMap)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([color]) => color);
+  } catch (e) {
+    return [];
+  }
+}
+
+// Batch upload (up to 15 images)
+const batchUpload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => cb(null, path.join(UPLOAD_DIR, 'originals')),
+    filename: (req, file, cb) => cb(null, `${uuidv4()}${path.extname(file.originalname)}`)
+  }),
+  limits: { fileSize: 100 * 1024 * 1024, files: 15 }
+});
+
+router.post('/batch', batchUpload.array('files', 15), async (req, res, next) => {
+  try {
+    if (!req.files || req.files.length === 0) return res.status(400).json({ error: '请选择文件' });
+    const { categoryId, tags, status } = req.body;
+    const parsedTags = tags ? (typeof tags === 'string' ? JSON.parse(tags) : tags) : [];
+    const batchId = uuidv4();
+    const results = [];
+
+    for (const file of req.files) {
+      let thumbnailPath = null;
+      let width = null, height = null;
+      let colors = [];
+
+      if (IMAGE_TYPES.includes(file.mimetype)) {
+        const thumbFilename = `thumb_${file.filename}`;
+        const thumbFullPath = path.join(UPLOAD_DIR, 'thumbnails', thumbFilename);
+        try {
+          const metadata = await sharp(file.path).metadata();
+          width = metadata.width;
+          height = metadata.height;
+          await sharp(file.path)
+            .resize(400, 400, { fit: 'inside', withoutEnlargement: true })
+            .toFile(thumbFullPath);
+          thumbnailPath = `/uploads/thumbnails/${thumbFilename}`;
+          colors = await extractColors(file.path);
+        } catch (e) {
+          console.warn('Image processing failed for', file.filename, e.message);
+        }
+      }
+
+      const asset = await prisma.asset.create({
+        data: {
+          title: file.originalname.replace(path.extname(file.originalname), ''),
+          description: req.body.description || '',
+          categoryId: categoryId ? parseInt(categoryId) : null,
+          filePath: `/uploads/originals/${file.filename}`,
+          fileSize: file.size,
+          fileType: path.extname(file.originalname).toLowerCase().replace('.', ''),
+          mimeType: file.mimetype,
+          thumbnailPath, width, height,
+          tags: JSON.stringify(parsedTags),
+          colors: JSON.stringify(colors),
+          batchId,
+          uploaderId: req.user.id,
+          status: status || 'reference'
+        },
+        include: { uploader: { select: { id: true, displayName: true } } }
+      });
+      results.push(asset);
+    }
+
+    res.json({ assets: results, batchId, count: results.length });
+  } catch (e) { next(e); }
+});
+
+// Get assets by batch
+router.get('/batch/:batchId', async (req, res, next) => {
+  try {
+    const assets = await prisma.asset.findMany({
+      where: { batchId: req.params.batchId },
+      orderBy: { createdAt: 'asc' },
+      include: {
+        uploader: { select: { id: true, displayName: true } },
+        category: { select: { id: true, name: true } }
+      }
+    });
+    if (assets.length === 0) return res.status(404).json({ error: '批次不存在' });
+    res.json({ assets, batchId: req.params.batchId, count: assets.length });
+  } catch (e) { next(e); }
+});
+
 // === Version Management ===
 
 // Upload new version

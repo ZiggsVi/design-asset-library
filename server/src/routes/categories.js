@@ -6,10 +6,13 @@ const router = Router();
 
 router.use(authenticate);
 
-// Get category tree
+// Get category tree, optionally filtered by type
 router.get('/', async (req, res, next) => {
   try {
-    const categories = await prisma.category.findMany({ orderBy: { sortOrder: 'asc' } });
+    const { type } = req.query;
+    const where = {};
+    if (type) where.type = type;
+    const categories = await prisma.category.findMany({ where, orderBy: { sortOrder: 'asc' } });
     // Build tree
     const map = {};
     const roots = [];
@@ -28,9 +31,9 @@ router.get('/', async (req, res, next) => {
 // Create category
 router.post('/', requireRole('admin'), async (req, res, next) => {
   try {
-    const { name, parentId, sortOrder } = req.body;
+    const { name, parentId, type, sortOrder } = req.body;
     const category = await prisma.category.create({
-      data: { name, parentId: parentId || null, sortOrder: sortOrder || 0 }
+      data: { name, parentId: parentId || null, type: type || 'material', sortOrder: sortOrder || 0 }
     });
     res.json(category);
   } catch (e) { next(e); }
@@ -39,10 +42,10 @@ router.post('/', requireRole('admin'), async (req, res, next) => {
 // Update category
 router.put('/:id', requireRole('admin'), async (req, res, next) => {
   try {
-    const { name, parentId, sortOrder } = req.body;
+    const { name, parentId, type, sortOrder } = req.body;
     const category = await prisma.category.update({
       where: { id: parseInt(req.params.id) },
-      data: { name, parentId: parentId || null, sortOrder }
+      data: { name, parentId: parentId || null, type, sortOrder }
     });
     res.json(category);
   } catch (e) { next(e); }

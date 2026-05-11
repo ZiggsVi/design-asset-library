@@ -13,6 +13,9 @@ import Projects from './pages/Projects';
 import ProjectDetail from './pages/ProjectDetail';
 import Learning from './pages/Learning';
 import LearningUpload from './pages/LearningUpload';
+import References from './pages/References';
+import ReferenceUpload from './pages/ReferenceUpload';
+import ReferenceBatch from './pages/ReferenceBatch';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -41,6 +44,9 @@ function AppRoutes() {
         <Route path="projects/:id" element={<ProjectDetail />} />
         <Route path="learning" element={<Learning />} />
         <Route path="learning/upload" element={<LearningUpload />} />
+        <Route path="references" element={<References />} />
+        <Route path="references/upload" element={<ReferenceUpload />} />
+        <Route path="references/batch/:batchId" element={<ReferenceBatch />} />
         <Route path="categories" element={<AdminRoute><Categories /></AdminRoute>} />
         <Route path="users" element={<AdminRoute><Users /></AdminRoute>} />
       </Route>
