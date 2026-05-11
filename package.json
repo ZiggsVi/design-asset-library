@@ -1,0 +1,15 @@
+{
+  "name": "design-asset-library",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "postinstall": "cd server && npm install",
+    "build": "cd server && npx prisma generate && cd ../client && npm install && npm run build",
+    "start": "cd server && npx prisma db push && node src/seed.js && node index.js",
+    "seed": "cd server && node src/seed.js",
+    "dev": "concurrently \"cd server && npm run dev\" \"cd client && npm run dev\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}

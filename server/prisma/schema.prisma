@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  username     String    @unique
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  displayName  String    @map("display_name")
+  role         String    @default("editor") // admin, editor, viewer
+  avatar       String?
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  assets       Asset[]
+  versions     AssetVersion[]
+
+  @@map("users")
+}
+
+model Category {
+  id        Int        @id @default(autoincrement())
+  name      String
+  parentId  Int?       @map("parent_id")
+  parent    Category?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children  Category[] @relation("CategoryTree")
+  sortOrder Int        @default(0) @map("sort_order")
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+  assets    Asset[]
+
+  @@map("categories")
+}
+
+model Asset {
+  id              Int            @id @default(autoincrement())
+  title           String
+  description     String         @default("")
+  categoryId      Int?           @map("category_id")
+  category        Category?      @relation(fields: [categoryId], references: [id])
+  filePath        String         @map("file_path")
+  fileSize        Int            @map("file_size")
+  fileType        String         @map("file_type")
+  mimeType        String         @map("mime_type")
+  thumbnailPath   String?        @map("thumbnail_path")
+  width           Int?
+  height          Int?
+  tags            String         @default("[]") // JSON array
+  uploaderId      Int            @map("uploader_id")
+  uploader        User           @relation(fields: [uploaderId], references: [id])
+  status          String         @default("reference") // reference, final
+  isLatestVersion Boolean        @default(true) @map("is_latest_version")
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+  versions        AssetVersion[]
+
+  @@map("assets")
+}
+
+model AssetVersion {
+  id           Int      @id @default(autoincrement())
+  assetId      Int      @map("asset_id")
+  asset        Asset    @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  versionNumber Int     @map("version_number")
+  filePath     String   @map("file_path")
+  fileSize     Int      @map("file_size")
+  fileType     String   @map("file_type")
+  uploaderId   Int      @map("uploader_id")
+  uploader     User     @relation(fields: [uploaderId], references: [id])
+  comment      String   @default("")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("asset_versions")
+}
