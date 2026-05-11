@@ -24,7 +24,6 @@ app.use(cors());
 app.use(express.json());
 
 // Uploaded files static serving
-const uploadsPath = path.resolve(__dirname, '..', process.env.UPLOAD_DIR || '../uploads');
 app.use('/uploads', express.static(uploadsPath));
 
 // API routes
