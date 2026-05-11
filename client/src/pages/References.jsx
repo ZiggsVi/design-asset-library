@@ -13,6 +13,7 @@ export default function References() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [categories, setCategories] = useState([]);
   const [hoveredId, setHoveredId] = useState(null);
+  const [isComposing, setIsComposing] = useState(false);
   const navigate = useNavigate();
 
   const page = parseInt(searchParams.get('page') || '1');
@@ -112,7 +113,9 @@ export default function References() {
           prefix={<SearchOutlined />}
           style={{ width: 280 }}
           value={search}
-          onChange={e => updateParams('search', e.target.value)}
+          onChange={e => { if (!isComposing) updateParams('search', e.target.value); }}
+          onCompositionStart={() => setIsComposing(true)}
+          onCompositionEnd={e => { setIsComposing(false); updateParams('search', e.currentTarget.value); }}
           allowClear
         />
         <Select
@@ -182,7 +185,7 @@ export default function References() {
                         if (asset.batchId) {
                           navigate(`/references/batch/${asset.batchId}`);
                         } else {
-                          navigate(`/assets/${asset.id}`);
+                          navigate(`/references/${asset.id}`);
                         }
                       }}
                       onMouseEnter={() => setHoveredId(asset.id)}

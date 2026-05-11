@@ -75,7 +75,7 @@ export default function ReferenceBatch() {
                   <Button type="link" icon={<DownloadOutlined />} onClick={() => handleDownload(asset.id, asset.title)}>
                     下载
                   </Button>,
-                  <Button type="link" onClick={() => navigate(`/assets/${asset.id}`)}>
+                  <Button type="link" onClick={() => navigate(`/references/${asset.id}`)}>
                     详情
                   </Button>
                 ]}

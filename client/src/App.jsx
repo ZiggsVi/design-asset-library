@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ConfigProvider, App as AppAnt, Spin } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import Layout from './components/Layout';
 import Login from './pages/Login';
 import Assets from './pages/Assets';
@@ -16,6 +17,7 @@ import LearningUpload from './pages/LearningUpload';
 import References from './pages/References';
 import ReferenceUpload from './pages/ReferenceUpload';
 import ReferenceBatch from './pages/ReferenceBatch';
+import ReferenceDetail from './pages/ReferenceDetail';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -28,6 +30,21 @@ function AdminRoute({ children }) {
   const { user } = useAuth();
   if (user?.role !== 'admin') return <Navigate to="/assets" replace />;
   return children;
+}
+
+function AppContent() {
+  const { themeConfig } = useTheme();
+  return (
+    <ConfigProvider locale={zhCN} theme={themeConfig}>
+      <AppAnt>
+        <BrowserRouter>
+          <AuthProvider>
+            <AppRoutes />
+          </AuthProvider>
+        </BrowserRouter>
+      </AppAnt>
+    </ConfigProvider>
+  );
 }
 
 function AppRoutes() {
@@ -47,6 +64,7 @@ function AppRoutes() {
         <Route path="references" element={<References />} />
         <Route path="references/upload" element={<ReferenceUpload />} />
         <Route path="references/batch/:batchId" element={<ReferenceBatch />} />
+        <Route path="references/:id" element={<ReferenceDetail />} />
         <Route path="categories" element={<AdminRoute><Categories /></AdminRoute>} />
         <Route path="users" element={<AdminRoute><Users /></AdminRoute>} />
       </Route>
@@ -56,14 +74,8 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <ConfigProvider locale={zhCN} theme={{ token: { colorPrimary: '#1677ff' } }}>
-      <AppAnt>
-        <BrowserRouter>
-          <AuthProvider>
-            <AppRoutes />
-          </AuthProvider>
-        </BrowserRouter>
-      </AppAnt>
-    </ConfigProvider>
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
   );
 }

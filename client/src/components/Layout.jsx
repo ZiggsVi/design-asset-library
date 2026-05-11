@@ -4,9 +4,10 @@ import {
   InboxOutlined, UploadOutlined, AppstoreOutlined,
   TeamOutlined, LogoutOutlined, UserOutlined, FolderOutlined,
   ProjectOutlined, BookOutlined, FileOutlined, PictureOutlined,
-  PictureFilled
+  PictureFilled, SunOutlined
 } from '@ant-design/icons';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import CategoryTree from './CategoryTree';
 
 const { Sider, Content, Header } = AntLayout;
@@ -14,6 +15,7 @@ const { Text } = Typography;
 
 export default function Layout() {
   const { user, logout } = useAuth();
+  const { darkMode, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const { token } = theme.useToken();
@@ -62,7 +64,7 @@ export default function Layout() {
 
   return (
     <AntLayout style={{ minHeight: '100vh' }}>
-      <Sider width={220} style={{ background: token.colorBgContainer }} theme="light">
+      <Sider width={220} style={{ background: token.colorBgContainer }} theme={darkMode ? 'dark' : 'light'}>
         <div style={{ padding: '16px', borderBottom: `1px solid ${token.colorBorderSecondary}` }}>
           <Text strong style={{ fontSize: 16 }}>
             <FolderOutlined style={{ marginRight: 8 }} />
@@ -76,13 +78,14 @@ export default function Layout() {
           onClick={({ key }) => navigate(key)}
           style={{ borderRight: 0, marginTop: 8 }}
         />
-        <div style={{ padding: '0 16px', marginTop: 16 }}>
-          <Text type="secondary" style={{ fontSize: 12 }}>素材分类</Text>
+        <div style={{ padding: '0 16px', marginTop: 12, marginBottom: 4 }}>
+          <Text type="secondary" style={{ fontSize: 12 }}>分类筛选</Text>
         </div>
         <CategoryTree />
       </Sider>
       <AntLayout>
-        <Header style={{ background: token.colorBgContainer, padding: '0 24px', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', borderBottom: `1px solid ${token.colorBorderSecondary}` }}>
+        <Header style={{ background: token.colorBgContainer, padding: '0 24px', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 8, borderBottom: `1px solid ${token.colorBorderSecondary}` }}>
+          <Button type="text" icon={<SunOutlined style={{ color: darkMode ? '#faad14' : undefined }} />} onClick={toggleTheme} title={darkMode ? '切换白色主题' : '切换黑色主题'} />
           <Dropdown menu={userMenu} placement="bottomRight">
             <Button type="text" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <Avatar size="small" icon={<UserOutlined />} />

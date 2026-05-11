@@ -13,6 +13,7 @@ export default function Assets() {
   const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
   const [statuses] = useState(['', 'reference', 'final']);
+  const [isComposing, setIsComposing] = useState(false);
 
   const page = parseInt(searchParams.get('page') || '1');
   const search = searchParams.get('search') || '';
@@ -59,7 +60,9 @@ export default function Assets() {
           prefix={<SearchOutlined />}
           style={{ width: 320 }}
           value={search}
-          onChange={e => updateParams('search', e.target.value)}
+          onChange={e => { if (!isComposing) updateParams('search', e.target.value); }}
+          onCompositionStart={() => setIsComposing(true)}
+          onCompositionEnd={e => { setIsComposing(false); updateParams('search', e.currentTarget.value); }}
           allowClear
         />
         <Select
